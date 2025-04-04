@@ -17,12 +17,12 @@ def toggle_pins():
         while True:
             for pin in gpio_pins:
                 GPIO.output(pin, GPIO.HIGH)
-                print(f"Pin {pin} set HIGH")
-                time.sleep(0.5)  # Delay to allow you to test the pin voltage
+                print(f"Pin {pin} set HIGH - Press Enter to turn it off")
+                input()  # Wait for user input
                 
                 GPIO.output(pin, GPIO.LOW)
                 print(f"Pin {pin} set LOW")
-                time.sleep(0.5)  # Delay to allow you to test the pin voltage
+                time.sleep(0.5)  # Small delay before next pin
     except KeyboardInterrupt:
         print("Exiting program")
 
