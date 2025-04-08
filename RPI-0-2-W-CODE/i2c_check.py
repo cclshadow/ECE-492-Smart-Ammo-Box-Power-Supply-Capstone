@@ -22,7 +22,14 @@ def request_data():
     except Exception as e:
         print(f"Error reading from Arduino: {e}")
 
-# Example usage:
-# set_led(5)  # Turn on LED 5
-# time.sleep(1)
-# request_data()  # Request data from Arduino
+if __name__ == "__main__":
+    print("Starting I2C communication test...")
+    
+    # Example: Cycle through LEDs 0-9
+    for led in range(10):
+        set_led(led)
+        time.sleep(0.5)  # Wait half a second between each LED
+        
+    # Request data from Arduino
+    print("\nRequesting data from Arduino...")
+    request_data()
