@@ -9,8 +9,29 @@ import time
 import sys
 
 # UART configuration
-SERIAL_PORT = '/dev/ttyAMA0'  # Default UART port on Raspberry Pi
+# Try different UART ports in case default is not available
+SERIAL_PORTS = ['/dev/ttyAMA0', '/dev/ttyS0', '/dev/serial0']  # Common UART ports on Raspberry Pi
 BAUD_RATE = 9600
+
+# Function to find available serial port
+def find_serial_port():
+    for port in SERIAL_PORTS:
+        try:
+            ser = serial.Serial(port, BAUD_RATE)
+            ser.close()
+            return port
+        except:
+            continue
+    return None
+
+SERIAL_PORT = find_serial_port()
+if not SERIAL_PORT:
+    print("Error: No available UART ports found")
+    print("Please check:")
+    print("1. UART is enabled in raspi-config")
+    print("2. User has permission to access serial ports") 
+    print("3. No other program is using the serial port")
+    sys.exit(1)
 
 def setup_serial():
     """Initialize the serial connection to the Arduino."""
