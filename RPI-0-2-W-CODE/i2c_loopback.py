@@ -1,6 +1,30 @@
 import smbus
 import time
 import sys
+import os
+
+def check_i2c_setup():
+    print("Checking I2C setup...")
+    
+    # Check if I2C device exists
+    if not os.path.exists('/dev/i2c-1'):
+        print("ERROR: /dev/i2c-1 device not found!")
+        print("Please enable I2C in raspi-config")
+        return False
+        
+    # Check permissions
+    try:
+        with open('/dev/i2c-1', 'r') as f:
+            print("I2C device is readable")
+    except PermissionError:
+        print("ERROR: Permission denied accessing I2C device")
+        print("Try running with sudo")
+        return False
+    except Exception as e:
+        print(f"ERROR accessing I2C device: {e}")
+        return False
+        
+    return True
 
 def check_i2c_devices():
     try:
@@ -12,9 +36,15 @@ def check_i2c_devices():
     except Exception as e:
         print(f"Error checking I2C devices: {e}")
 
-# Initialize I2C bus
+# Main program
 try:
-    print("Initializing I2C bus...")
+    print("Starting I2C diagnostics...")
+    
+    # First check I2C setup
+    if not check_i2c_setup():
+        sys.exit(1)
+    
+    print("\nInitializing I2C bus...")
     bus = smbus.SMBus(1)  # Use 1 for Raspberry Pi Zero 2 W
     address = 0x00  # Loopback address
     
@@ -61,3 +91,5 @@ except Exception as e:
     print("2. Check I2C connections")
     print("3. Verify you're running with sudo")
     print("4. Check if i2c-tools is installed (sudo apt-get install i2c-tools)")
+    print("5. Try rebooting the Raspberry Pi")
+    print("6. Check if the I2C kernel module is loaded (lsmod | grep i2c)")

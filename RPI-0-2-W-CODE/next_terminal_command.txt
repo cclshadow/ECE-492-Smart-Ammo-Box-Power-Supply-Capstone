@@ -1,0 +1,19 @@
+# Enable I2C in raspi-config
+sudo raspi-config
+# Navigate to Interface Options -> I2C and enable it
+# After enabling, reboot your Raspberry Pi
+
+# After reboot, run these commands:
+sudo apt-get update
+sudo apt-get install -y i2c-tools python3-smbus
+
+# Add your user to the i2c group
+sudo usermod -aG i2c $USER
+# Log out and log back in for this to take effect
+
+# Check I2C setup
+lsmod | grep i2c
+ls -l /dev/i2c*
+
+# Run the I2C loopback test
+sudo python3 i2c_loopback.py 
