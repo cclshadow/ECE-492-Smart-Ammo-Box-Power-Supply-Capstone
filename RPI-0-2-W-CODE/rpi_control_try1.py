@@ -93,7 +93,7 @@ def main():
     # Initialize the controller
     # Note: You might need to change the port to match your setup
     # Common ports: '/dev/ttyUSB0', '/dev/ttyACM0'
-    controller = ArduinoController(port='/dev/ttyUSB0')
+    controller = ArduinoController(port='/dev/serial0')
     
     try:
         controller.start()
