@@ -26,6 +26,11 @@ class ArduinoController:
         self.command_thread = threading.Thread(target=self._process_commands)
         self.command_thread.daemon = True
         self.command_thread.start()
+
+        # Start the time synchronization thread
+        self.time_thread = threading.Thread(target=self._sync_time)
+        self.time_thread.daemon = True
+        self.time_thread.start()
         
     def stop(self):
         self.running = False
@@ -102,6 +107,19 @@ class ArduinoController:
             except Exception as e:
                 print(f"Error processing command: {e}")
                 time.sleep(1)
+
+    def _sync_time(self):
+        """Thread function to send time updates to Arduino"""
+        while self.running:
+            try:
+                if self.ser.is_open:
+                    now = datetime.datetime.now()
+                    time_str = now.strftime("TIME:%H:%M:%S\n")  # Format: TIME:HH:MM:SS
+                    self.ser.write(time_str.encode())
+                time.sleep(1)  # Send time update every second
+            except Exception as e:
+                print(f"Error syncing time: {e}")
+                time.sleep(5)
                 
     def send_command(self, command):
         """Add a command to the queue"""
