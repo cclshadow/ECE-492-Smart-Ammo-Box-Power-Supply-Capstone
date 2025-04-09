@@ -91,14 +91,12 @@ class ArduinoController:
 
 def main():
     # Initialize the controller
-    # Note: You might need to change the port to match your setup
-    # Common ports: '/dev/ttyUSB0', '/dev/ttyACM0'
     controller = ArduinoController(port='/dev/serial0')
     
     try:
         controller.start()
         print("Arduino Controller Started")
-        print("Available commands:")
+        print("\nAvailable commands:")
         print("0-49: Turn on specific LED")
         print("a: Turn all LEDs on")
         print("o: Turn all LEDs off")
@@ -108,9 +106,17 @@ def main():
         print("q: Quit")
         
         while True:
-            command = input("Enter command: ").strip()
+            command = input("\nEnter command: ").strip()
             if command.lower() == 'q':
                 break
+                
+            # Validate LED number command
+            if command.isdigit():
+                led_num = int(command)
+                if led_num < 0 or led_num > 49:
+                    print("Invalid LED number. Must be between 0 and 49.")
+                    continue
+                    
             controller.send_command(command)
             
     except KeyboardInterrupt:
