@@ -4,7 +4,7 @@ import time
 
 # Configure the serial port
 ser = serial.Serial(
-    port='/dev/serial0',  # Default serial port on GPIO
+    port='/dev/ttyS0',  # Default serial port on GPIO
     baudrate=9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
