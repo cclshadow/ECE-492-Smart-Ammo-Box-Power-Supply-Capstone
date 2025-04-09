@@ -6,7 +6,9 @@ import queue
 import datetime
 
 class ArduinoController:
-    def __init__(self, port='/dev/serial0', baudrate=9600):
+    def __init__(self, port='/dev/ttyAMA0', baudrate=9600):
+        self.port = port
+        self.baudrate = baudrate
         self.ser = serial.Serial(port, baudrate, timeout=1)
         self.command_queue = queue.Queue()
         self.running = True
@@ -30,10 +32,28 @@ class ArduinoController:
         if hasattr(self, 'ser'):
             self.ser.close()
             
+    def reconnect(self):
+        """Attempt to reconnect to the serial port"""
+        try:
+            if hasattr(self, 'ser'):
+                self.ser.close()
+            self.ser = serial.Serial(self.port, self.baudrate, timeout=1)
+            print("Serial port reconnected")
+            return True
+        except Exception as e:
+            print(f"Reconnection failed: {e}")
+            return False
+            
     def _read_serial(self):
         """Thread function to continuously read from serial port"""
         while self.running:
             try:
+                if not self.ser.is_open:
+                    print("Serial port is closed. Attempting to reconnect...")
+                    if not self.reconnect():
+                        time.sleep(5)  # Wait before retrying
+                        continue
+                        
                 if self.ser.in_waiting:
                     line = self.ser.readline().decode('utf-8').strip()
                     if line:
@@ -70,6 +90,12 @@ class ArduinoController:
         while self.running:
             try:
                 if not self.command_queue.empty():
+                    if not self.ser.is_open:
+                        print("Serial port is closed. Attempting to reconnect...")
+                        if not self.reconnect():
+                            time.sleep(5)  # Wait before retrying
+                            continue
+                            
                     command = self.command_queue.get()
                     self.ser.write((command + '\n').encode())
                     time.sleep(0.1)  # Small delay between commands
