@@ -6,7 +6,7 @@ import queue
 import datetime
 
 class ArduinoController:
-    def __init__(self, port='/dev/ttyAMA0', baudrate=9600):
+    def __init__(self, port='/dev/serial0', baudrate=9600):
         self.port = port
         self.baudrate = baudrate
         self.ser = serial.Serial(port, baudrate, timeout=1)
