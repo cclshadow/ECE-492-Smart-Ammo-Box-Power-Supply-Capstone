@@ -4,6 +4,7 @@ import time
 import threading
 import queue
 import datetime
+import RPi.GPIO as GPIO
 
 class ArduinoController:
     def __init__(self, port='/dev/ttyS0', baudrate=9600):
@@ -15,6 +16,43 @@ class ArduinoController:
         self.last_voltage = 0.0
         self.last_current = 0.0
         self.last_temperature = 0.0
+
+        self.encoder_position = 0
+
+        # Rotary Encoder Setup
+        self.encoder_a_pin = 5
+        self.encoder_b_pin = 6
+
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.encoder_a_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(self.encoder_b_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        
+        # Attach interrupts to detect rotary encoder movement
+        GPIO.add_event_detect(self.encoder_a_pin, GPIO.BOTH, callback=self.encoder_callback)
+        GPIO.add_event_detect(self.encoder_b_pin, GPIO.BOTH, callback=self.encoder_callback)
+
+    def encoder_callback(self, channel):
+        """Called when encoder position changes"""
+        # Read current state of the encoder
+        a = GPIO.input(self.encoder_a_pin)
+        b = GPIO.input(self.encoder_b_pin)
+
+        # Check the direction of rotation
+        if a == b:
+            self.encoder_position += 1  # Clockwise rotation
+        else:
+            self.encoder_position -= 1  # Counter-clockwise rotation
+
+        # Send updated position to Arduino
+        self._send_rotary_info()
+
+    def _send_rotary_info(self):
+        """Send the rotary encoder position to Arduino"""
+        if self.ser.is_open:
+            message = f"ROTARYV:{self.encoder_position}\n"
+            self.ser.write(message.encode())
+            print(f"Sent to Arduino: {message.strip()}")
+
         
     def start(self):
         # Start the reading thread
@@ -120,6 +158,7 @@ class ArduinoController:
             except Exception as e:
                 print(f"Error syncing time: {e}")
                 time.sleep(5)
+
                 
     def send_command(self, command):
         """Add a command to the queue"""
