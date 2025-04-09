@@ -117,7 +117,7 @@ class ArduinoController:
 
 def main():
     # Initialize the controller
-    controller = ArduinoController(port='/dev/serial0')
+    controller = ArduinoController(port='/dev/ttyS0')
     
     try:
         controller.start()
